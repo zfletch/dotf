@@ -1,0 +1,19 @@
+# matching tags: all, foo, bar, baz
+
+# ~~~ location "./temp file" foo ~~~
+# ~~~ location ./temp_none_file none ~~~
+
+# ~~~ include all ~~~
+2
+# ~~~ include bar ~~~
+4
+# ~~~ include none ~~~
+5
+# ~~~ exclude none ~~~
+6
+# ~~~ only baz none ~~~
+7
+# ~~~ include none foo other ~~~
+9
+# ~~~ only none
+10

@@ -59,7 +59,7 @@ class DotFiles
     @key = nil
 
     begin
-      File.write(key_file, key)
+      File.open(key_file, 'w') { |file| file.puts(key) }
     rescue => exception
       quit "Could not write key: #{exception}"
     end
@@ -204,7 +204,7 @@ class DotFiles
               status = tag_matches?(tags) ? :go : :stop
             when "location"
               possible_location, *tags = *tags
-              location = tag_matches?(tags) ? possible_location : location
+              location = tag_matches?(tags) ? File.expand_path(possible_location) : location
             else
               warn "Unrecognized command: #{command} @ #{filepath}:#{line_count}"
             end
