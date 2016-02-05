@@ -3,7 +3,6 @@
 require_relative "../lib/dot_files"
 
 path = File.expand_path("~/.dotf")
-dotf = DotFiles.new(path)
 
 description = "Usage: dotf command [arguments]
   init            initializes dotf
@@ -13,28 +12,28 @@ description = "Usage: dotf command [arguments]
   run             compiles and links dotfiles"
 
 case command = ARGV.first
-when "init" then dotf.init
+when "init" then DotFiles.new(path).init
 when "tags"
   if ARGV.length > 1
     _, *tags = *ARGV
-    dotf.write_tags(tags)
+    DotFiles.new(path).write_tags(tags)
   end
 
-  dotf.tags.to_a.sort.each { |tag| puts tag }
+  DotFiles.new(path).tags.to_a.sort.each { |tag| puts tag }
 when "key"
   if ARGV.length > 1
     key = ARGV[1]
-    dotf.write_key(key)
+    DotFiles.new(path).write_key(key)
   end
 
-  puts dotf.key
+  puts DotFiles.new(path).key
 when "status"
-  dotf.status.each { |status| puts status }
-when "compile" then dotf.compile
-when "link" then dotf.link
+  DotFiles.new(path).status.each { |status| puts status }
+when "compile" then DotFiles.new(path).compile
+when "link" then DotFiles.new(path).link
 when "run"
-  dotf.compile
-  dotf.link
+  DotFiles.new(path).compile
+  DotFiles.new(path).link
 when nil
   puts description
 else

@@ -23,8 +23,10 @@ class DotFiles
   end
 
   def tags
+    return @tags if @tags
+
     begin
-      File.open(tag_file, "r") { |file| file.each_line.map(&:chomp) }.to_set
+      @tags = File.open(tag_file, "r") { |file| file.each_line.map(&:chomp) }.to_set
     rescue => exception
       quit "Could not get tags: #{exception}"
     end
@@ -32,6 +34,7 @@ class DotFiles
 
   def write_tags(new_tags)
     new_tags = (new_tags + tags.to_a).uniq.sort
+    @tags = nil
 
     begin
       File.open(tag_file, "w") do |file|
@@ -43,14 +46,18 @@ class DotFiles
   end
 
   def key
+    return @key if @key
+
     begin
-      File.read(key_file).chomp
+      @key = File.read(key_file).chomp
     rescue => exception
       quit "Could not get key: #{exception}"
     end
   end
 
   def write_key(key)
+    @key = nil
+
     begin
       File.write(key_file, key)
     rescue => exception
@@ -75,6 +82,7 @@ class DotFiles
 
   def compile
     compiled_dotfiles.each { |file| File.unlink(file) }
+    @compiled_dotfiles = nil
 
     dotfiles.each do |file|
       begin
@@ -148,8 +156,10 @@ class DotFiles
   end
 
   def dotfiles
+    return @dotfiles if @dotfiles
+
     begin
-      Dir.entries(dotfiles_dir)
+      @dotfiles = Dir.entries(dotfiles_dir)
         .reject { |entry| entry.start_with?(".") }
         .map { |entry| File.join(dotfiles_dir, entry) }
     rescue => exception
@@ -158,8 +168,10 @@ class DotFiles
   end
 
   def compiled_dotfiles
+    return @compiled_dotfiles if @compiled_dotfiles
+
     begin
-      Dir.entries(compiled_dir)
+      @compiled_dotfiles = Dir.entries(compiled_dir)
         .reject { |entry| entry.start_with?(".") }
         .map { |entry| File.join(compiled_dir, entry) }
     rescue => exception
@@ -213,7 +225,11 @@ class DotFiles
   end
 
   def location(filepath)
-    filtered_lines(filepath)
+    return @location[filepath] if @location && @location[filepath]
+
+    @location ||= {}
+
+    @location[filepath] = filtered_lines(filepath)
   end
 
   def compiled_file_path(filepath)
