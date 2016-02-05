@@ -8,19 +8,17 @@ class DotFiles
 
   def init
     if File.exists?(path)
-      puts "Already initialized: #{path}"
+      warn "Already initialized: #{path}"
     else
       begin
         Dir.mkdir(path)
         Dir.mkdir(dotfiles_dir)
         Dir.mkdir(compiled_dir)
-        File.write(tag_file, default_tags.join("\n") + "\n")
-        File.write(key_file, default_key + "\n")
+        File.open(tag_file, 'w') { |file| default_tags.each { |tag| file.puts(tag) } }
+        File.open(key_file, 'w') { |file| file.puts default_key }
       rescue => exception
         quit "Initialization failed: #{exception}"
       end
-
-      puts "Initialized dotf in #{path}"
     end
   end
 
@@ -76,12 +74,10 @@ class DotFiles
   end
 
   def compile
-    warn "Clearing out old files ..."
     compiled_dotfiles.each { |file| File.unlink(file) }
 
     dotfiles.each do |file|
       begin
-        warn "Compiling #{File.basename(file)} ..."
         File.open(compiled_file_path(file), "w") do |compiled|
           filtered_lines(file) { |line| compiled.print(line) }
         end
@@ -89,8 +85,6 @@ class DotFiles
         quit "Compilation failed: #{exception}"
       end
     end
-
-    warn "Finished compilation"
   end
 
   def link
@@ -98,10 +92,8 @@ class DotFiles
       begin
         case file_status(file)
         when :unlinked
-          warn "Linking: #{File.basename(file)} ..."
           File.symlink(file, location(file))
         when :linked
-          warn "Already linked: #{File.basename(file)}"
         when :problem
           warn "Cannot link: #{File.basename(file)}"
         end
@@ -109,8 +101,6 @@ class DotFiles
         quit "Linking failed: #{exception}"
       end
     end
-
-    warn "Finished linking"
   end
 
   private
