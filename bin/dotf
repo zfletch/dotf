@@ -2,14 +2,41 @@
 
 require_relative "../lib/dot_files"
 
+require 'optparse'
+
+description = "Usage: dotf command [arguments] [flags]
+Commands:
+  init             initializes dotf
+  tags [tags ...]  prints the current tags [adds new tags if given]
+  key  [key]       prints the current key [changes key if given]
+  status           displays whether dotfiles are currently linked or not
+  run              compiles and links dotfiles
+Flags:"
+
 path = File.expand_path("~/.dotf")
 
-description = "Usage: dotf command [arguments]
-  init            initializes dotf
-  tags [tags ...] prints the current tags [adds new tags if given]
-  key  [key]      prints the current key [changes key if given]
-  status          displays whether dotfiles are currently linked or not
-  run             compiles and links dotfiles"
+parser = OptionParser.new do |opts|
+  opts.banner = description
+  opts.set_summary_indent "  "
+  opts.set_summary_width 20
+
+  opts.on("-p", "--prefix PREFIX", "specify directory (default ~/.dotf)") do |prefix|
+    path = File.expand_path(prefix)
+  end
+
+  opts.on("-h", "--help", "print this message") do
+    puts opts
+    exit 0
+  end
+end
+
+begin
+  parser.parse!
+rescue OptionParser::ParseError => exception
+  puts exception
+  puts parser
+  exit 1
+end
 
 case command = ARGV.first
 when "init" then DotFiles.new(path).init
@@ -35,8 +62,9 @@ when "run"
   DotFiles.new(path).compile
   DotFiles.new(path).link
 when nil
-  puts description
+  puts parser
 else
-  puts "Unrecognized command: #{command}"
-  puts description
+  puts "invalid command: #{command}"
+  puts parser
+  exit 1
 end
