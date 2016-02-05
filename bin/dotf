@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/dot_files"
+
+path = File.expand_path("~/.dotf")
+dotf = DotFiles.new(path)
+
+description = "Usage: dotf command [arguments]
+  init            initializes dotf
+  tags [tags ...] prints the current tags [adds new tags if given]
+  key  [key]      prints the current key [changes key if given]
+  status          displays whether dotfiles are currently linked or not
+  run             compiles and links dotfiles"
+
+case command = ARGV.first
+when "init" then dotf.init
+when "tags"
+  if ARGV.length > 1
+    _, *tags = *ARGV
+    dotf.write_tags(tags)
+  end
+
+  dotf.tags.to_a.sort.each { |tag| puts tag }
+when "key"
+  if ARGV.length > 1
+    key = ARGV[1]
+    dotf.write_key(key)
+  end
+
+  puts dotf.key
+when "status"
+  dotf.status.each { |status| puts status }
+when "compile" then dotf.compile
+when "link" then dotf.link
+when "run"
+  dotf.compile
+  dotf.link
+when nil
+  puts description
+else
+  puts "Unrecognized command: #{command}"
+  puts description
+end

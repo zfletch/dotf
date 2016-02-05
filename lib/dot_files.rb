@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'shellwords'
 require 'set'
 
@@ -243,35 +241,4 @@ class DotFiles
       :problem
     end
   end
-end
-
-path = File.expand_path("~/.dotf")
-
-dotf = DotFiles.new(path)
-
-case command = ARGV.first
-when "init" then dotf.init
-when "tags"
-  if ARGV.length > 1
-    _, *tags = *ARGV
-    dotf.write_tags(tags)
-  end
-
-  dotf.tags.to_a.sort.each { |tag| puts tag }
-when "key"
-  if ARGV.length > 1
-    key = ARGV[1]
-    dotf.write_key(key)
-  end
-
-  puts dotf.key
-when "status"
-  dotf.status.each { |status| puts status }
-when "compile" then dotf.compile
-when "link" then dotf.link
-when "run"
-  dotf.compile
-  dotf.link
-else
-  puts "Unrecognized command: #{command}"
 end
